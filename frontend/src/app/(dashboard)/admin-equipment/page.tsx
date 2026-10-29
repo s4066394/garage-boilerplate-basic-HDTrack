@@ -21,7 +21,14 @@ export default function AdminEquipmentPage() {
   }
 
   useEffect(() => {
-    loadRequests()
+    getDocs(getEquipmentRequestCollection()).then((snapshot) => {
+      setRequests(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          data: doc.data(),
+        }))
+      )
+    })
   }, [])
 
   async function updateStatus(requestId: string, status: 'approved' | 'rejected') {
@@ -35,9 +42,11 @@ export default function AdminEquipmentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6 text-zinc-900">
+    <div className="min-h-screen bg-white text-zinc-900">
       <h1 className="text-2xl font-bold">Equipment Approvals</h1>
-      <p className="mt-1 text-sm text-zinc-500">Review employee equipment requests.</p>
+      <p className="mt-1 text-sm text-zinc-500">
+        Review employee equipment requests.
+      </p>
 
       <div className="mt-6 space-y-3">
         {requests.map(({ id, data }) => (
@@ -47,7 +56,9 @@ export default function AdminEquipmentPage() {
           >
             <p className="font-medium">{data.employeeName}</p>
             <p className="text-sm text-zinc-600">{data.equipmentName}</p>
-            <p className="mt-1 text-sm capitalize text-zinc-600">{data.status}</p>
+            <p className="mt-1 text-sm capitalize text-zinc-600">
+              {data.status}
+            </p>
 
             {data.status === 'pending' && (
               <div className="mt-3 flex gap-2">
