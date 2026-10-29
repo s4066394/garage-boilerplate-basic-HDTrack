@@ -16,10 +16,24 @@ export interface UserProfile {
   email: string
   displayName: string | null
   photoURL: string | null
-  role: 'user'
+  role: 'user' | 'admin'
   createdAt: Timestamp
   updatedAt: Timestamp
   _schemaVersion: 1
+}
+
+export interface EquipmentItem {
+  name: string
+  available: boolean
+}
+
+export interface EquipmentRequest {
+  employeeUid: string
+  employeeName: string
+  equipmentId: string
+  equipmentName: string
+  status: 'pending' | 'approved' | 'rejected'
+  createdAt: Timestamp
 }
 
 export type CreateUserProfileInput = Omit<UserProfile, 'createdAt' | 'updatedAt'>

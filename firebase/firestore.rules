@@ -56,6 +56,23 @@ service cloud.firestore {
       allow delete: if false; // soft-delete only — set deletedAt field instead
     }
 
+    match /equipmentCatalog/{equipmentId} {
+      allow read: if isAuthenticated();
+    }
+
+    match /equipmentRequests/{requestId} {
+      allow create: if isAuthenticated()
+        && request.resource.data.employeeUid == request.auth.uid;
+
+      allow read: if isAuthenticated()
+        && (resource.data.employeeUid == request.auth.uid || isAdmin());
+
+      allow update: if isAdmin()
+        && request.resource.data.employeeUid == resource.data.employeeUid
+        && request.resource.data.equipmentId == resource.data.equipmentId
+        && request.resource.data.status in ['approved', 'rejected'];
+    }
+
     // Add new collection rules above this comment using the /firebase-collection skill.
 
     // ── Default deny ───────────────────────────────────────────────────────
