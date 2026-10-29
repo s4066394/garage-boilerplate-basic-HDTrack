@@ -60,6 +60,11 @@ service cloud.firestore {
       allow read: if isAuthenticated();
     }
 
+    match /equipmentRequests/{requestId} {
+      allow create: if isAuthenticated()
+        && request.resource.data.employeeUid == request.auth.uid;
+    }
+
     // Add new collection rules above this comment using the /firebase-collection skill.
 
     // ── Default deny ───────────────────────────────────────────────────────

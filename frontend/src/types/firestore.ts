@@ -27,4 +27,13 @@ export interface EquipmentItem {
   available: boolean
 }
 
+export interface EquipmentRequest {
+  employeeUid: string
+  employeeName: string
+  equipmentId: string
+  equipmentName: string
+  status: 'pending' | 'approved' | 'rejected'
+  createdAt: Timestamp
+}
+
 export type CreateUserProfileInput = Omit<UserProfile, 'createdAt' | 'updatedAt'>
