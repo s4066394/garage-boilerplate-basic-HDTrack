@@ -22,4 +22,9 @@ export interface UserProfile {
   _schemaVersion: 1
 }
 
+export interface EquipmentItem {
+  name: string
+  available: boolean
+}
+
 export type CreateUserProfileInput = Omit<UserProfile, 'createdAt' | 'updatedAt'>

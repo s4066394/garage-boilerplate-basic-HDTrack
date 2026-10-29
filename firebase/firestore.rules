@@ -56,6 +56,10 @@ service cloud.firestore {
       allow delete: if false; // soft-delete only — set deletedAt field instead
     }
 
+    match /equipmentCatalog/{equipmentId} {
+      allow read: if isAuthenticated();
+    }
+
     // Add new collection rules above this comment using the /firebase-collection skill.
 
     // ── Default deny ───────────────────────────────────────────────────────
