@@ -9,20 +9,48 @@ import type { EquipmentItem, EquipmentRequest } from '@/types/firestore'
 export default function EquipmentPage() {
   const { user, profile } = useAuth()
   const [equipment, setEquipment] = useState<{ id: string; data: EquipmentItem }[]>([])
-  const [requests, setRequests] = useState<EquipmentRequest[]>([])
+  const [requests, setRequests] = useState<{ id: string; data: EquipmentRequest }[]>([])
 
   async function loadRequests() {
     if (!user) return
-    const requestQuery = query(getEquipmentRequestCollection(), where('employeeUid', '==', user.uid))
-    const snapshot = await getDocs(requestQuery)
-    setRequests(snapshot.docs.map((doc) => doc.data()))
+
+    try {
+      const q = query(
+        getEquipmentRequestCollection(),
+        where('employeeUid', '==', user.uid)
+      )
+
+      const snapshot = await getDocs(q)
+
+      setRequests(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          data: doc.data(),
+        }))
+      )
+    } catch {
+      return
+    }
   }
 
   useEffect(() => {
     async function loadData() {
-      const snapshot = await getDocs(getEquipmentCollection())
-      setEquipment(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })))
-      await loadRequests()
+      if (!user) return
+
+      try {
+        const snapshot = await getDocs(getEquipmentCollection())
+
+        setEquipment(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            data: doc.data(),
+          }))
+        )
+
+        await loadRequests()
+      } catch {
+        return
+      }
     }
 
     loadData()
@@ -32,25 +60,25 @@ export default function EquipmentPage() {
     if (!user) return
 
     const duplicate = requests.some(
-        (request) => request.equipmentId === equipmentId && request.status === 'pending'
+      ({ data }) => data.equipmentId === equipmentId
     )
 
     if (duplicate) {
-        alert('You already have a pending request for this item.')
-        return
+      alert('You have already requested this item.')
+      return
     }
 
     await addDoc(getEquipmentRequestCollection(), {
-        employeeUid: user.uid,
-        employeeName: profile?.displayName ?? user.email ?? 'Employee',
-        equipmentId,
-        equipmentName: item.name,
-        status: 'pending',
-        createdAt: serverTimestamp(),
+      employeeUid: user.uid,
+      employeeName: profile?.displayName ?? user.email ?? 'Employee',
+      equipmentId,
+      equipmentName: item.name,
+      status: 'pending',
+      createdAt: serverTimestamp(),
     })
 
     await loadRequests()
-    }
+  }
 
   return (
     <div>
@@ -61,7 +89,10 @@ export default function EquipmentPage() {
         {equipment.map(({ id, data }) => (
           <div key={id} className="flex items-center justify-between rounded-md border p-4">
             <p className="font-medium">{data.name}</p>
-            <button onClick={() => requestEquipment(data, id)} className="rounded-md border px-3 py-1.5 text-sm">
+            <button
+              onClick={() => requestEquipment(data, id)}
+              className="rounded-md border px-3 py-1.5 text-sm"
+            >
               Request
             </button>
           </div>
@@ -71,10 +102,10 @@ export default function EquipmentPage() {
       <h2 className="mt-8 text-xl font-semibold">My Requests</h2>
 
       <div className="mt-3 space-y-3">
-        {requests.map((request) => (
-          <div key={`${request.equipmentId}-${request.employeeUid}`} className="flex items-center justify-between rounded-md border p-4">
-            <p>{request.equipmentName}</p>
-            <p className="text-sm capitalize">{request.status}</p>
+        {requests.map(({ id, data }) => (
+          <div key={id} className="flex items-center justify-between rounded-md border p-4">
+            <p>{data.equipmentName}</p>
+            <p className="text-sm capitalize">{data.status}</p>
           </div>
         ))}
       </div>

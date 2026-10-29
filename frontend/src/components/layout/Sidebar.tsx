@@ -1,14 +1,22 @@
+'use client'
+
 import Link from 'next/link'
 import { LayoutDashboard, User, Settings, Package } from 'lucide-react'
-
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/profile', label: 'Profile', icon: User },
-  { href: '/settings', label: 'Settings', icon: Settings },
-  { href: '/equipment', label: 'Equipment', icon: Package }
-]
+import { useAuth } from '@/hooks/useAuth'
 
 export function Sidebar() {
+  const { profile } = useAuth()
+  const isAdmin = profile?.role === 'admin'
+
+  const navItems = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/profile', label: 'Profile', icon: User },
+    { href: '/settings', label: 'Settings', icon: Settings },
+    isAdmin
+      ? { href: '/admin-equipment', label: 'Equipment Approvals', icon: Package }
+      : { href: '/equipment', label: 'Equipment', icon: Package },
+  ]
+
   return (
     <aside className="hidden lg:flex w-60 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
       <div className="flex h-14 items-center px-4 border-b border-zinc-200 dark:border-zinc-800">
@@ -16,6 +24,7 @@ export function Sidebar() {
           {process.env.NEXT_PUBLIC_APP_NAME ?? 'App'}
         </span>
       </div>
+
       <nav className="flex-1 p-3 space-y-1">
         {navItems.map(({ href, label, icon: Icon }) => (
           <Link
