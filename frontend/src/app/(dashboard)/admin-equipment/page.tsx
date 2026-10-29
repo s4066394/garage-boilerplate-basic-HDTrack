@@ -11,7 +11,13 @@ export default function AdminEquipmentPage() {
 
   async function loadRequests() {
     const snapshot = await getDocs(getEquipmentRequestCollection())
-    setRequests(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })))
+
+    setRequests(
+      snapshot.docs.map((doc) => ({
+        id: doc.id,
+        data: doc.data(),
+      }))
+    )
   }
 
   useEffect(() => {
@@ -29,29 +35,32 @@ export default function AdminEquipmentPage() {
   }
 
   return (
-    <div>
+    <div className="min-h-screen bg-white p-6 text-zinc-900">
       <h1 className="text-2xl font-bold">Equipment Approvals</h1>
       <p className="mt-1 text-sm text-zinc-500">Review employee equipment requests.</p>
 
       <div className="mt-6 space-y-3">
         {requests.map(({ id, data }) => (
-          <div key={id} className="rounded-md border p-4">
+          <div
+            key={id}
+            className="rounded-md border border-zinc-200 bg-zinc-50 p-4"
+          >
             <p className="font-medium">{data.employeeName}</p>
-            <p className="text-sm">{data.equipmentName}</p>
-            <p className="mt-1 text-sm capitalize">{data.status}</p>
+            <p className="text-sm text-zinc-600">{data.equipmentName}</p>
+            <p className="mt-1 text-sm capitalize text-zinc-600">{data.status}</p>
 
             {data.status === 'pending' && (
               <div className="mt-3 flex gap-2">
                 <button
                   onClick={() => updateStatus(id, 'approved')}
-                  className="rounded-md border px-3 py-1.5 text-sm"
+                  className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm hover:bg-zinc-100"
                 >
                   Approve
                 </button>
 
                 <button
                   onClick={() => updateStatus(id, 'rejected')}
-                  className="rounded-md border px-3 py-1.5 text-sm"
+                  className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm hover:bg-zinc-100"
                 >
                   Reject
                 </button>

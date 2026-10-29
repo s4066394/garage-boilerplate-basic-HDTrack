@@ -81,17 +81,21 @@ export default function EquipmentPage() {
   }
 
   return (
-    <div>
+    <div className="min-h-screen bg-white p-6 text-zinc-900">
       <h1 className="text-2xl font-bold">Equipment Requests</h1>
       <p className="mt-1 text-sm text-zinc-500">Request equipment for your role.</p>
 
       <div className="mt-6 space-y-3">
         {equipment.map(({ id, data }) => (
-          <div key={id} className="flex items-center justify-between rounded-md border p-4">
+          <div
+            key={id}
+            className="flex items-center justify-between rounded-md border border-zinc-200 bg-zinc-50 p-4"
+          >
             <p className="font-medium">{data.name}</p>
+
             <button
               onClick={() => requestEquipment(data, id)}
-              className="rounded-md border px-3 py-1.5 text-sm"
+              className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm hover:bg-zinc-100"
             >
               Request
             </button>
@@ -103,9 +107,12 @@ export default function EquipmentPage() {
 
       <div className="mt-3 space-y-3">
         {requests.map(({ id, data }) => (
-          <div key={id} className="flex items-center justify-between rounded-md border p-4">
+          <div
+            key={id}
+            className="flex items-center justify-between rounded-md border border-zinc-200 bg-zinc-50 p-4"
+          >
             <p>{data.equipmentName}</p>
-            <p className="text-sm capitalize">{data.status}</p>
+            <p className="text-sm capitalize text-zinc-600">{data.status}</p>
           </div>
         ))}
       </div>
