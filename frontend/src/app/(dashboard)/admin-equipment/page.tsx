@@ -1,13 +1,35 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { doc, getDocs, updateDoc } from 'firebase/firestore'
+import { useAuth } from '@/hooks/useAuth'
 import { getClientDb } from '@/lib/firebase/client'
 import { getEquipmentRequestCollection } from '@/lib/firebase/firestore'
 import type { EquipmentRequest } from '@/types/firestore'
 
 export default function AdminEquipmentPage() {
+  const router = useRouter()
+  const { profile } = useAuth()
   const [requests, setRequests] = useState<{ id: string; data: EquipmentRequest }[]>([])
+
+  useEffect(() => {
+    if (!profile) return
+
+    if (profile.role !== 'admin') {
+      router.replace('/equipment')
+      return
+    }
+
+    getDocs(getEquipmentRequestCollection()).then((snapshot) => {
+      setRequests(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          data: doc.data(),
+        }))
+      )
+    })
+  }, [profile, router])
 
   async function loadRequests() {
     const snapshot = await getDocs(getEquipmentRequestCollection())
@@ -19,17 +41,6 @@ export default function AdminEquipmentPage() {
       }))
     )
   }
-
-  useEffect(() => {
-    getDocs(getEquipmentRequestCollection()).then((snapshot) => {
-      setRequests(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          data: doc.data(),
-        }))
-      )
-    })
-  }, [])
 
   async function updateStatus(requestId: string, status: 'approved' | 'rejected') {
     const requestRef = doc(getClientDb(), 'equipmentRequests', requestId)
@@ -50,15 +61,10 @@ export default function AdminEquipmentPage() {
 
       <div className="mt-6 space-y-3">
         {requests.map(({ id, data }) => (
-          <div
-            key={id}
-            className="rounded-md border border-zinc-200 bg-zinc-50 p-4"
-          >
+          <div key={id} className="rounded-md border border-zinc-200 bg-zinc-50 p-4">
             <p className="font-medium">{data.employeeName}</p>
             <p className="text-sm text-zinc-600">{data.equipmentName}</p>
-            <p className="mt-1 text-sm capitalize text-zinc-600">
-              {data.status}
-            </p>
+            <p className="mt-1 text-sm capitalize text-zinc-600">{data.status}</p>
 
             {data.status === 'pending' && (
               <div className="mt-3 flex gap-2">
